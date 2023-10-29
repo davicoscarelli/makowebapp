@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import SubTask from './SubTask';
 import useTaskActions from './useTaskActions';
-import axios from '../AxiosConfig.js';
+// import axios from '../AxiosConfig.js';
 
-
-function Task({ task, onDelete }) {
+// onDelete
+function Task({ task }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [newSubTaskTitle, setNewSubTaskTitle] = useState('');
     const [refresh, setRefresh] = useState(true); // Add this line
     const { subTask, handleDelete, handleAdd, fetchData } = useTaskActions('tasks', task.id, "subtasks", '');
-    const [items, setItems] = useState([]);
+    // const [items, setItems] = useState([]);
 
 
     const handleSubTaskDeleted = () => {
@@ -28,18 +28,20 @@ function Task({ task, onDelete }) {
     };
 
     const handleDeleteTask = () => {
-        if (onDelete) {
-            onDelete(task.id);
-            console.log('task on delete!')
-        }
+        // if (onDelete) {
+        //     onDelete(task.id);
+        //     console.log('task on delete!')
+        // }
+        handleDelete(task.id);
+
     };    
     
     useEffect(() => {
         if (refresh) {
             fetchData();
-            setRefresh(false); // Reset refresh state after fetching
+            setRefresh(false);
         }
-    }, [refresh]);
+    }, [refresh, fetchData]);
 
     return (
         <div>

@@ -1,82 +1,86 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useCallback } from 'react';
 import axios from '../AxiosConfig.js';
 
 function useTaskActions(endpoint, id, subtasks, parentEndpoint) {
     const [items, setItems] = useState([]);
     const [refresh, setRefresh] = useState(true); // Initialize with true to fetch data on mount
-    const [taskdelete, setDelete] = useState(false);
+    // const [taskdelete, setDelete] = useState(false);
 
-    const fetchData = () => {
-        console.log("FETCHHHH")
+    const fetchData = useCallback(() => {
         axios.get(`/${endpoint}/${id}/${subtasks}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         })
         .then(response => {
+            console.log("Fetched items:", response.data);
+
             setItems(response.data);
         })
         .catch(error => {
             console.error(`Error fetching ${endpoint}:`, error);
         });
-    }
+    }, [endpoint, id, subtasks])
 
-    const fetchParent = async () => {
-        const parentid = await getParentTaskId();
-        await axios.delete(`/${endpoint}/${id}`);
-        if (endpoint === 'tasks') {
-            axios.get(`/tasks`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            })
+    // const fetchParent = async () => {
+    //     const parentid = await getParentTaskId();
+    //     await axios.delete(`/${endpoint}/${id}`);
+    //     if (endpoint === 'tasks') {
+    //         axios.get(`/tasks`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${localStorage.getItem('token')}`
+    //             }
+    //         })
             
-        } else {
-            axios.get(`/${parentEndpoint}/${parentid}/${endpoint}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            })
-            setDelete(false)
-            .then(response => {
-                setItems(response.data);
-            })
-            .catch(error => {
-                console.error(`Error fetching ${endpoint}:`, error);
-            })
-        }
-        ;
-    }
+    //     } else {
+    //         axios.get(`/${parentEndpoint}/${parentid}/${endpoint}`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${localStorage.getItem('token')}`
+    //             }
+    //         })
+    //         setDelete(false)
+    //         .then(response => {
+    //             setItems(response.data);
+    //         })
+    //         .catch(error => {
+    //             console.error(`Error fetching ${endpoint}:`, error);
+    //         })
+    //     }
+    //     ;
+    // }
     
     useEffect(() => {
         if (refresh) {
             fetchData();
-            setRefresh(false); // Reset refresh state after fetching
+            setRefresh(false);
         }
-    }, [refresh]);
+    }, [refresh, fetchData]);
 
-
-    const getParentTaskId = async () => {
-        try {
-            const response = await axios.get(`/${endpoint}/${id}`);
-            const data = response.data;
+    // const getParentTaskId = async () => {
+    //     try {
+    //         const response = await axios.get(`/${endpoint}/${id}`);
+    //         const data = response.data;
     
-            if (parentEndpoint === 'subtasks') {
-                return data.task_id; // Return task_id for subtasks
-            } else if (parentEndpoint === 'subsubtasks') {
-                return data.subtask_id; // Return subtask_id for subsubtask
-            } else if (parentEndpoint === 'tasks') {
-                return 0; // Return 0 for a task
-            }
-        } catch (error) {
-            console.error(`Error fetching parent ID for ${parentEndpoint}:`, error);
-            return null;
-        }
-    };
+    //         if (parentEndpoint === 'subtasks') {
+    //             return data.task_id; // Return task_id for subtasks
+    //         } else if (parentEndpoint === 'subsubtasks') {
+    //             return data.subtask_id; // Return subtask_id for subsubtask
+    //         } else if (parentEndpoint === 'tasks') {
+    //             return 0; // Return 0 for a task
+    //         }
+    //     } catch (error) {
+    //         console.error(`Error fetching parent ID for ${parentEndpoint}:`, error);
+    //         return null;
+    //     }
+    // };
     
     const handleDelete = async (itemId) => {
         try {
+            console.log("Attempting to delete item with ID:", itemId);
+
             await axios.delete(`/${endpoint}/${itemId}`);
+            console.log("Successfully deleted item with ID:", itemId);
+
             fetchData();
             setRefresh(true);
         } catch (error) {

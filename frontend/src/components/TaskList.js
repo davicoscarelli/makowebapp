@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';  
 import axios from '../AxiosConfig.js';
 import Task from './Task';
+import useTaskActions from './useTaskActions';
 
 function TaskList() {
     const [tasks, setTasks] = useState([]);
@@ -9,10 +10,11 @@ function TaskList() {
 
     const navigate = useNavigate();
     const [refresh, setRefresh] = useState(false); // Initialize with true to fetch data on mount
+    const { handleDelete } = useTaskActions('tasks', null, null, null);
 
 
     // Function to fetch tasks from server
-    const fetchTasks = () => {
+    const fetchTasks = useCallback(() => {
         axios.get('/tasks')
             .then(response => {
                 setTasks(response.data);
@@ -24,7 +26,7 @@ function TaskList() {
                     navigate('/login');
                 }
             });
-    };
+    }, [navigate]);
 
 
     
@@ -37,14 +39,14 @@ function TaskList() {
         }
 
         fetchTasks();
-    }, [navigate]);
+    }, [navigate, fetchTasks]);
 
     useEffect(() => {
         if (refresh) {
             fetchTasks();
             setRefresh(false); // Reset refresh state after fetching
         }
-    }, [refresh]);
+    }, [refresh, fetchTasks]);
 
     const handleAddTask = () => {
         axios.post('/tasks', { title: newTaskTitle })
@@ -59,12 +61,14 @@ function TaskList() {
     };
 
     const handleTaskDelete = (task) => {
-        try {
-            axios.delete(`/tasks/${task.id}`);
-        } catch (error) {
-            console.error(`Error deleting task:`, error);
-        }
-        setRefresh(true); 
+        handleDelete(task.id);
+
+        // try {
+        //     axios.delete(`/tasks/${task.id}`);
+        // } catch (error) {
+        //     console.error(`Error deleting task:`, error);
+        // }
+        // setRefresh(true); 
         
     };
 

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const setAuthorizationHeader = () => {
     const token = localStorage.getItem('token');
-    console.log('Token before request:', token);  // Logging token
+    // console.log('Token before request:', token);  // Logging token
     if (token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {

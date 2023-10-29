@@ -5,6 +5,8 @@ function SubSubTask({ subSubTask, onDelete }) {
     const { handleDelete } = useTaskActions('subsubtasks', subSubTask.id, '', 'subtasks');  // Using 'subtasks' as the parentEndpoint since subsubtasks belong to subtasks.
 
     const DeletesubsubTask = () => {
+        console.log("Deleting subsubtask with ID:", subSubTask.id);
+
         handleDelete(subSubTask.id, 'subtasks'); // Specifying 'subtasks' as the parentEndpoint for the deletion logic.
         if (onDelete) {
             onDelete(subSubTask.id);
