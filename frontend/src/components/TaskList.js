@@ -89,7 +89,9 @@ function TaskList() {
                 placeholder="New Task Title"
             />
             <button onClick={handleAddTask}>Add Task</button>
+            <button onClick={fetchTasks}>Refresh Tasks</button>
         </div>
+        
     );
 }
 

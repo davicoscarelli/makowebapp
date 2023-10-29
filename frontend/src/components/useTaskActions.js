@@ -4,6 +4,8 @@ import axios from '../AxiosConfig.js';
 function useTaskActions(endpoint, id, subtasks, parentEndpoint) {
     const [items, setItems] = useState([]);
     const [refresh, setRefresh] = useState(true); // Initialize with true to fetch data on mount
+    const [refreshKey, setRefreshKey] = useState(0);
+
     // const [taskdelete, setDelete] = useState(false);
 
     const fetchData = useCallback(() => {
@@ -54,7 +56,7 @@ function useTaskActions(endpoint, id, subtasks, parentEndpoint) {
             fetchData();
             setRefresh(false);
         }
-    }, [refresh, fetchData]);
+    }, [refresh, fetchData, refreshKey]);
 
     // const getParentTaskId = async () => {
     //     try {
@@ -83,6 +85,8 @@ function useTaskActions(endpoint, id, subtasks, parentEndpoint) {
 
             fetchData();
             setRefresh(true);
+            setRefreshKey(prevKey => prevKey + 1); // This will trigger the useEffect to re-fetch tasks
+
         } catch (error) {
             console.error(`Error deleting ${endpoint}:`, error);
         }
